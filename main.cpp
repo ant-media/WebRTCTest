@@ -10,17 +10,16 @@
 
 #include "videosink.h"
 #include "settings.h"
-
-#include "qmyvideosurface.h"
 #include <QThread>
 #include <QApplication>
+#include "mydecoder.h"
+
 
 WebRTCAdaptor *adaptor;
 QApplication *app;
 class CustomRunnable : public rtc::Runnable {
 public:
     void Run(rtc::Thread* subthread) override {
-
         adaptor = new WebRTCAdaptor();
         subthread->Run();
     }
@@ -72,7 +71,6 @@ int main(int argc, char* argv[]) {
     rtc::InitializeSSL();
     CustomRunnable runnable;
     thread->Start(&runnable);
-
     sleep(1);
 
     //std::thread t1(StatWriterTask);
@@ -80,8 +78,10 @@ int main(int argc, char* argv[]) {
 
     QApplication a(argc, argv);
 
-    StatWriter t;
-    t.start();
+    if(Settings::verbose) {
+        StatWriter t;
+        t.start();
+    }
 
     app = &a;
     VideoSink *vs = new VideoSink();
@@ -91,14 +91,12 @@ int main(int argc, char* argv[]) {
         vs->setTrack(adaptor->video_track_);
     }
 
+    adaptor->init();
 
     if(Settings::mode == Settings::Mode::Publisher && Settings::streamSource.compare("camera") != 0) {
-        QMyVideoSurface *surface = new QMyVideoSurface(QString(Settings::streamSource.c_str()));
-        surface->setCapturer(adaptor->capturer);
-        surface->play();
+        MyDecoder *myDecoder = new MyDecoder(QString(Settings::streamSource.c_str()), adaptor->capturer, adaptor->myAdm.get());
+        adaptor->fileReader = myDecoder;
     }
-
-    adaptor->init();
 
     a.exec();
 

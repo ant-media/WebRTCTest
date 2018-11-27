@@ -50,39 +50,46 @@ VirtualFileAudioDevice::~VirtualFileAudioDevice() {
 
 int32_t VirtualFileAudioDevice::ActiveAudioLayer(
         AudioDeviceModule::AudioLayer& audioLayer) const {
-    std::cout << __FUNCTION__;
+      RTC_LOG(INFO) << __FUNCTION__;
+
     return -1;
 }
 
 AudioDeviceGeneric::InitStatus VirtualFileAudioDevice::Init() {
-    std::cout << __FUNCTION__;
+      RTC_LOG(INFO) << __FUNCTION__;
+
     return InitStatus::OK;
 }
 
 int32_t VirtualFileAudioDevice::Terminate() {
-    std::cout << __FUNCTION__;
+      RTC_LOG(INFO) << __FUNCTION__;
+
     return 0;
 }
 
 bool VirtualFileAudioDevice::Initialized() const {
-    std::cout << __FUNCTION__;
+      RTC_LOG(INFO) << __FUNCTION__;
+
     return true;
 }
 
 int16_t VirtualFileAudioDevice::PlayoutDevices() {
-    std::cout << __FUNCTION__;
+      RTC_LOG(INFO) << __FUNCTION__;
+
     return 1;
 }
 
 int16_t VirtualFileAudioDevice::RecordingDevices() {
-    std::cout << __FUNCTION__;
+      RTC_LOG(INFO) << __FUNCTION__;
+
     return 1;
 }
 
 int32_t VirtualFileAudioDevice::PlayoutDeviceName(uint16_t index,
         char name[kAdmMaxDeviceNameSize],
         char guid[kAdmMaxGuidSize]) {
-    std::cout << __FUNCTION__;
+      RTC_LOG(INFO) << __FUNCTION__;
+
     const char* kName = "dummy_device";
     const char* kGuid = "dummy_device_unique_id";
     if (index < 1) {
@@ -98,7 +105,8 @@ int32_t VirtualFileAudioDevice::PlayoutDeviceName(uint16_t index,
 int32_t VirtualFileAudioDevice::RecordingDeviceName(uint16_t index,
         char name[kAdmMaxDeviceNameSize],
         char guid[kAdmMaxGuidSize]) {
-    std::cout << __FUNCTION__;
+      RTC_LOG(INFO) << __FUNCTION__;
+
     const char* kName = "dummy_device";
     const char* kGuid = "dummy_device_unique_id";
     if (index < 1) {
@@ -112,7 +120,8 @@ int32_t VirtualFileAudioDevice::RecordingDeviceName(uint16_t index,
 }
 
 int32_t VirtualFileAudioDevice::SetPlayoutDevice(uint16_t index) {
-    std::cout << __FUNCTION__;
+      RTC_LOG(INFO) << __FUNCTION__;
+
     if (index == 0) {
         _playout_index = index;
         return 0;
@@ -122,7 +131,8 @@ int32_t VirtualFileAudioDevice::SetPlayoutDevice(uint16_t index) {
 
 int32_t VirtualFileAudioDevice::SetPlayoutDevice(
         AudioDeviceModule::WindowsDeviceType device) {
-    std::cout << __FUNCTION__;
+      RTC_LOG(INFO) << __FUNCTION__;
+
     return -1;
 }
 
@@ -137,12 +147,14 @@ int32_t VirtualFileAudioDevice::SetRecordingDevice(uint16_t index) {
 
 int32_t VirtualFileAudioDevice::SetRecordingDevice(
         AudioDeviceModule::WindowsDeviceType device) {
-    std::cout << __FUNCTION__;
+      RTC_LOG(INFO) << __FUNCTION__;
+
     return -1;
 }
 
 int32_t VirtualFileAudioDevice::PlayoutIsAvailable(bool& available) {
-    std::cout << __FUNCTION__;
+      RTC_LOG(INFO) << __FUNCTION__;
+
     if (_playout_index == 0) {
         available = true;
         return _playout_index;
@@ -152,7 +164,8 @@ int32_t VirtualFileAudioDevice::PlayoutIsAvailable(bool& available) {
 }
 
 int32_t VirtualFileAudioDevice::InitPlayout() {
-    std::cout << __FUNCTION__;
+      RTC_LOG(INFO) << __FUNCTION__;
+
     if (_ptrAudioBuffer) {
         // Update webrtc audio buffer with the selected parameters
         _ptrAudioBuffer->SetPlayoutSampleRate(kPlayoutFixedSampleRate);
@@ -162,12 +175,14 @@ int32_t VirtualFileAudioDevice::InitPlayout() {
 }
 
 bool VirtualFileAudioDevice::PlayoutIsInitialized() const {
-    std::cout << __FUNCTION__;
+      RTC_LOG(INFO) << __FUNCTION__;
+
     return _playIsInitialized;
 }
 
 int32_t VirtualFileAudioDevice::RecordingIsAvailable(bool& available) {
-    std::cout << __FUNCTION__;
+      RTC_LOG(INFO) << __FUNCTION__;
+
     if (_record_index == 0) {
         available = true;
         return _record_index;
@@ -177,7 +192,8 @@ int32_t VirtualFileAudioDevice::RecordingIsAvailable(bool& available) {
 }
 
 int32_t VirtualFileAudioDevice::InitRecording() {
-    std::cout << __FUNCTION__;
+      RTC_LOG(INFO) << __FUNCTION__;
+
     rtc::CritScope lock(&_critSect);
 
     if (_recording) {
@@ -194,12 +210,14 @@ int32_t VirtualFileAudioDevice::InitRecording() {
 }
 
 bool VirtualFileAudioDevice::RecordingIsInitialized() const {
-    std::cout << __FUNCTION__;
+      RTC_LOG(INFO) << __FUNCTION__;
+
     return _recordingFramesIn10MS != 0;
 }
 
 int32_t VirtualFileAudioDevice::StartPlayout() {
-    std::cout << __FUNCTION__;
+      RTC_LOG(INFO) << __FUNCTION__;
+
     if (_playing) {
         return 0;
     }
@@ -229,7 +247,8 @@ int32_t VirtualFileAudioDevice::StartPlayout() {
 
 int32_t VirtualFileAudioDevice::StopPlayout() {
     {
-        std::cout << __FUNCTION__;
+          RTC_LOG(INFO) << __FUNCTION__;
+
         rtc::CritScope lock(&_critSect);
         _playing = false;
     }
@@ -254,12 +273,14 @@ int32_t VirtualFileAudioDevice::StopPlayout() {
 }
 
 bool VirtualFileAudioDevice::Playing() const {
-    std::cout << __FUNCTION__;
+      RTC_LOG(INFO) << __FUNCTION__;
+
     return _playing;
 }
 
 int32_t VirtualFileAudioDevice::StartRecording() {
-    std::cout << __FUNCTION__;
+      RTC_LOG(INFO) << __FUNCTION__;
+
     _recording = true;
 
     // Make sure we only create the buffer once.
@@ -287,7 +308,8 @@ int32_t VirtualFileAudioDevice::StartRecording() {
 int32_t VirtualFileAudioDevice::StopRecording() {
     uint64_t now = rtc::TimeMillis();
     {
-        std::cout << __FUNCTION__;
+          RTC_LOG(INFO) << __FUNCTION__;
+
         rtc::CritScope lock(&_critSect);
         _recording = false;
     }
@@ -315,140 +337,169 @@ int32_t VirtualFileAudioDevice::StopRecording() {
 }
 
 bool VirtualFileAudioDevice::Recording() const {
-    std::cout << __FUNCTION__;
+      RTC_LOG(INFO) << __FUNCTION__;
+
     return _recording;
 }
 
 int32_t VirtualFileAudioDevice::InitSpeaker() {
-    std::cout << __FUNCTION__;
+      RTC_LOG(INFO) << __FUNCTION__;
+
     return 0;
 }
 
 bool VirtualFileAudioDevice::SpeakerIsInitialized() const {
-    std::cout << __FUNCTION__;
+      RTC_LOG(INFO) << __FUNCTION__;
+
     return false;
 }
 
-int32_t VirtualFileAudioDevice::InitMicrophone() { std::cout << __FUNCTION__;
+int32_t VirtualFileAudioDevice::InitMicrophone() {   RTC_LOG(INFO) << __FUNCTION__;
+
 return 0; }
 
 bool VirtualFileAudioDevice::MicrophoneIsInitialized() const {
-    std::cout << __FUNCTION__;
+      RTC_LOG(INFO) << __FUNCTION__;
+
     return true; }
 
 int32_t VirtualFileAudioDevice::SpeakerVolumeIsAvailable(bool& available) {
-    std::cout << __FUNCTION__;
+      RTC_LOG(INFO) << __FUNCTION__;
+
     return -1;
 }
 
 int32_t VirtualFileAudioDevice::SetSpeakerVolume(uint32_t volume) {
-    std::cout << __FUNCTION__;
+      RTC_LOG(INFO) << __FUNCTION__;
+
     return -1; }
 
-int32_t VirtualFileAudioDevice::SpeakerVolume(uint32_t& volume) const { std::cout << __FUNCTION__;
+int32_t VirtualFileAudioDevice::SpeakerVolume(uint32_t& volume) const {   RTC_LOG(INFO) << __FUNCTION__;
+
 return -1; }
 
 int32_t VirtualFileAudioDevice::MaxSpeakerVolume(uint32_t& maxVolume) const {
-    std::cout << __FUNCTION__;
+      RTC_LOG(INFO) << __FUNCTION__;
+
     return -1;
 }
 
 int32_t VirtualFileAudioDevice::MinSpeakerVolume(uint32_t& minVolume) const {
-    std::cout << __FUNCTION__;
+      RTC_LOG(INFO) << __FUNCTION__;
+
     return -1;
 }
 
 
 int32_t VirtualFileAudioDevice::MicrophoneVolumeIsAvailable(bool& available) {
-    std::cout << __FUNCTION__;
+      RTC_LOG(INFO) << __FUNCTION__;
+
     return -1;
 }
 
-int32_t VirtualFileAudioDevice::SetMicrophoneVolume(uint32_t volume) { std::cout << __FUNCTION__;
+int32_t VirtualFileAudioDevice::SetMicrophoneVolume(uint32_t volume) {   RTC_LOG(INFO) << __FUNCTION__;
+
 return -1; }
 
 int32_t VirtualFileAudioDevice::MicrophoneVolume(uint32_t& volume) const {
-    std::cout << __FUNCTION__;
+      RTC_LOG(INFO) << __FUNCTION__;
+
     return -1;
 }
 
 int32_t VirtualFileAudioDevice::MaxMicrophoneVolume(uint32_t& maxVolume) const {
-    std::cout << __FUNCTION__;
+      RTC_LOG(INFO) << __FUNCTION__;
+
     return -1;
 }
 
 int32_t VirtualFileAudioDevice::MinMicrophoneVolume(uint32_t& minVolume) const {
-    std::cout << __FUNCTION__;
+      RTC_LOG(INFO) << __FUNCTION__;
+
     return -1;
 }
 
 
 int32_t VirtualFileAudioDevice::SpeakerMuteIsAvailable(bool& available) {
-    std::cout << __FUNCTION__;
+      RTC_LOG(INFO) << __FUNCTION__;
+
     return -1; }
 
 int32_t VirtualFileAudioDevice::SetSpeakerMute(bool enable) {
-    std::cout << __FUNCTION__;
+      RTC_LOG(INFO) << __FUNCTION__;
+
     return -1; }
 
 int32_t VirtualFileAudioDevice::SpeakerMute(bool& enabled) const {
-    std::cout << __FUNCTION__;
+      RTC_LOG(INFO) << __FUNCTION__;
+
     return -1; }
 
 int32_t VirtualFileAudioDevice::MicrophoneMuteIsAvailable(bool& available) {
-    std::cout << __FUNCTION__;
+      RTC_LOG(INFO) << __FUNCTION__;
+
     return -1;
 }
 
 int32_t VirtualFileAudioDevice::SetMicrophoneMute(bool enable) {
-    std::cout << __FUNCTION__;
+      RTC_LOG(INFO) << __FUNCTION__;
+
     return -1; }
 
 int32_t VirtualFileAudioDevice::MicrophoneMute(bool& enabled) const {
-    std::cout << __FUNCTION__;
+      RTC_LOG(INFO) << __FUNCTION__;
+
     return -1; }
 
 int32_t VirtualFileAudioDevice::StereoPlayoutIsAvailable(bool& available) {
-    std::cout << __FUNCTION__;
+      RTC_LOG(INFO) << __FUNCTION__;
+
     available = true;
     return 0;
 }
 int32_t VirtualFileAudioDevice::SetStereoPlayout(bool enable) {
-    std::cout << __FUNCTION__;
+      RTC_LOG(INFO) << __FUNCTION__;
+
     return 0;
 }
 
 int32_t VirtualFileAudioDevice::StereoPlayout(bool& enabled) const {
-    std::cout << __FUNCTION__;
+      RTC_LOG(INFO) << __FUNCTION__;
+
     enabled = true;
     return 0;
 }
 
 int32_t VirtualFileAudioDevice::StereoRecordingIsAvailable(bool& available) {
-    std::cout << __FUNCTION__;
+      RTC_LOG(INFO) << __FUNCTION__;
+
     available = true;
     return 0;
 }
 
 int32_t VirtualFileAudioDevice::SetStereoRecording(bool enable) {
-    std::cout << __FUNCTION__;
+      RTC_LOG(INFO) << __FUNCTION__;
+
     return 0;
 }
 
 int32_t VirtualFileAudioDevice::StereoRecording(bool& enabled) const {
-    std::cout << __FUNCTION__;
+      RTC_LOG(INFO) << __FUNCTION__;
+
     enabled = true;
     return 0;
 }
 
 int32_t VirtualFileAudioDevice::PlayoutDelay(uint16_t& delayMS) const {
-    //std::cout << __FUNCTION__;
+    //  RTC_LOG(INFO) << __FUNCTION__;
+
     //delayMS = 25;
     return 0;
 }
 
 void VirtualFileAudioDevice::AttachAudioBuffer(AudioDeviceBuffer* audioBuffer) {
-    std::cout << __FUNCTION__;
+      RTC_LOG(INFO) << __FUNCTION__;
+
     rtc::CritScope lock(&_critSect);
 
     _ptrAudioBuffer = audioBuffer;
@@ -519,6 +570,7 @@ bool VirtualFileAudioDevice::PlayThreadProcess()
 }
 
 bool VirtualFileAudioDevice::WriteAudioFrame(int8_t* data, size_t sample_count) {
+
     if (!_recording) {
         return false;
     }
@@ -543,6 +595,8 @@ bool VirtualFileAudioDevice::WriteAudioFrame(int8_t* data, size_t sample_count) 
             //_lastCallRecordMillis = currentTime;
             _critSect.Leave();
             _ptrAudioBuffer->DeliverRecordedData();
+
+
             //			_critSect.Enter();
         }
     }
@@ -589,7 +643,8 @@ void VirtualFileAudioDevice::NewFrameAvailable(int sampleCount) {
 
 bool VirtualFileAudioDevice::RecThreadProcess()
 {
-    //std::cout << __FUNCTION__;
+    //  RTC_LOG(INFO) << __FUNCTION__;
+
     if (!_recording) {
         return false;
     }

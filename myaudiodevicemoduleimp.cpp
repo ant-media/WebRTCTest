@@ -701,6 +701,12 @@ AudioDeviceModule::AudioLayer MyAudioDeviceModuleImpl::PlatformAudioLayer()
   return audio_layer_;
 }
 
+bool MyAudioDeviceModuleImpl::WriteAudioFrame(int8_t* data, size_t sample_count) {
+    //std::cout << __FUNCTION__ << rtc::TimeMillis();
+    VirtualFileAudioDevice* audioDevice = (VirtualFileAudioDevice*)audio_device_.get();
+    return audioDevice->WriteAudioFrame(data, sample_count);
+}
+
 }  // namespace webrtc
 
 /*
@@ -709,9 +715,7 @@ void CustomAudioDeviceModule::newFrameAvailable(int sample_count) {
     audioDevice->NewFrameAvailable(sample_count);
 }
 
-bool CustomAudioDeviceModule::WriteAudioFrame(int8_t* data, size_t sample_count) {
-    //std::cout << __FUNCTION__ << rtc::TimeMillis();
-    VirtualFileAudioDevice* audioDevice = (VirtualFileAudioDevice*)audio_device_.get();
-    return audioDevice->WriteAudioFrame(data, sample_count);
-}
 */
+
+
+

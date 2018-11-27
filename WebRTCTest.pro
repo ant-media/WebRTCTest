@@ -4,6 +4,8 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = WebRTCTest
 CONFIG += console
 CONFIG -= app_bundle
+CONFIG += no_keywords
+
 
 TEMPLATE = app
 
@@ -13,40 +15,33 @@ SOURCES += main.cpp \
     videosink.cpp \
     settings.cpp \
     myvideocapturer.cc \
-    qmyvideosurface.cpp \
     file_audio_device.cc \
-    myaudiodevicemoduleimp.cpp
+    myaudiodevicemoduleimp.cpp \
+    mydecoder.cpp
 
-QMAKE_CXXFLAGS += -std=gnu++11 -fno-rtti
-
-
-WEBRTC = /home/burak/webrtc/precompiled
-INCLUDEPATH += $${WEBRTC}/include
-INCLUDEPATH += $${WEBRTC}/include/third_party/abseil-cpp
-INCLUDEPATH += $${WEBRTC}/include/third_party/libyuv/include
+QMAKE_CXXFLAGS += -std=gnu++11 -fno-rtti -fpermissive
 
 
+WEBRTC = /home/burak/antmedia/webrtc-checkout/src
+INCLUDEPATH += $${WEBRTC}
+INCLUDEPATH += $${WEBRTC}/third_party/abseil-cpp
+INCLUDEPATH += $${WEBRTC}/third_party/libyuv/include
+INCLUDEPATH += /usr/local/include
 
 DEFINES += WEBRTC_POSIX
 DEFINES += WEBRTC_INCLUDE_INTERNAL_AUDIO_DEVICE
 
-LIBDIR = /home/burak/webrtc/webrtcbuilds/out/src/out/Release/obj
+LIBDIR = $${WEBRTC}/out
 
-#LIBS += -L$${LIBDIR} -lwebrtc
-#LIBS += -L$${LIBDIR}/rtc_base -lrtc_base
-#LIBS += -L$${LIBDIR}/rtc_base -lrtc_base_generic
-#LIBS += -L$${LIBDIR}/rtc_base/stringutils/stringencode.o
+LIBS += -L/usr/local/lib
+LIBS += -lavdevice -lavfilter -lavformat -lavcodec -lswresample -lswscale -lavutil -lpthread -lm -lz
+LIBS += -L/usr/lib/x86_64-linux-gnu -lopus -lvpx
 
+#LIBS += -L$${LIBDIR}/Release/obj -lwebrtc
+LIBS += -L$${LIBDIR} -lwebrtc1
+LIBS += -L$${LIBDIR} -lwebrtc2
 
-LIBS += -L$${WEBRTC}/lib/Release -lwebrtc_full
-LIBS += -L$${LIBDIR}/third_party/ffmpeg -lffmpeg_yasm
-LIBS += -L$${LIBDIR}/third_party/ffmpeg -lffmpeg_internal
-LIBS += -L$${LIBDIR}/third_party/openh264 -lopenh264_common_yasm
-LIBS += -L$${LIBDIR}/third_party/openh264 -lopenh264_encoder_yasm
-LIBS += -L$${LIBDIR}/third_party/openh264 -lopenh264_processing_yasm
-LIBS += -L$${LIBDIR}/rtc_base -lrtc_base
-
-LIBS += -lX11 -lXcomposite -lXext -lXrender -latomic -ldl -lpthread -lrt
+LIBS += -lX11 -lXext -latomic -ldl -lpthread -lrt
 
 HEADERS += \
     websocketadaptor.h \
@@ -54,10 +49,10 @@ HEADERS += \
     videosink.h \
     settings.h \
     myvideocapturer.h \
-    qmyvideosurface.h \
     antutils.h \
     file_audio_device.h \
-    myaudiodevicemoduleimp.h
+    myaudiodevicemoduleimp.h \
+    mydecoder.h
 
 DISTFILES +=
 

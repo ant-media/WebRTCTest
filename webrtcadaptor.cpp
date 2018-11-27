@@ -27,7 +27,7 @@
 #include "modules/audio_processing/include/audio_processing.h"
 #include "modules/video_capture/video_capture_factory.h"
 #include "myvideocapturer.h"
-#include "myaudiodevicemoduleimp.h"
+//#include "audiosink.h"
 
 
 #include <iostream>
@@ -58,7 +58,7 @@ PCO::PCO(WebRTCAdaptor* parent){
 }
 
 void PCO::OnSignalingChange(webrtc::PeerConnectionInterface::SignalingState new_state)  {
-    //std::cout << std::this_thread::get_id() << ":"<< "PeerConnectionObserver::SignalingChange(" << new_state << ")" << std::endl;
+    std::cout << std::this_thread::get_id() << ":"<< "PeerConnectionObserver::SignalingChange(" << new_state << ")" << std::endl;
 }
 
 void PCO::OnAddStream(rtc::scoped_refptr<webrtc::MediaStreamInterface> stream)  {
@@ -78,7 +78,11 @@ void PCO::OnRenegotiationNeeded()  {
 }
 
 void PCO::OnIceConnectionChange(webrtc::PeerConnectionInterface::IceConnectionState new_state)  {
-    //std::cout << std::this_thread::get_id() << ":"<< "PeerConnectionObserver::IceConnectionChange(" << new_state << ")" << std::endl;
+    std::cout << std::this_thread::get_id() << ":"<< "PeerConnectionObserver::IceConnectionChange(" << new_state << ")" << std::endl;
+
+    if(new_state == webrtc::PeerConnectionInterface::IceConnectionState::kIceConnectionCompleted) {
+        parent->fileReader->start();
+    }
 }
 
 void PCO::OnIceGatheringChange(webrtc::PeerConnectionInterface::IceGatheringState new_state)  {
@@ -93,7 +97,8 @@ void PCO::OnIceCandidate(const webrtc::IceCandidateInterface* candidate)  {
 void PCO::OnAddTrack(
         rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver,
         const std::vector<rtc::scoped_refptr<webrtc::MediaStreamInterface>>& streams){
-    //std::cout << std::this_thread::get_id() << ":"<< "PeerConnectionObserver::OnAddTrack" << std::endl;
+
+    std::cout << std::this_thread::get_id() << ":"<< "PeerConnectionObserver::OnAddTrack" << std::endl;
 
     webrtc::MediaStreamTrackInterface* track = receiver->track().release();
 
@@ -226,6 +231,8 @@ void WebRTCAdaptor::onConnected(){
 
 void WebRTCAdaptor::onMessage(std::string msg)
 {
+    //printf("onMessage:%s\n", msg);
+
     QString json = msg.c_str();
     QJsonParseError * error = new QJsonParseError;
     QJsonDocument doc = QJsonDocument::fromJson(json.toUtf8(), error);
@@ -267,6 +274,9 @@ void WebRTCAdaptor::onMessage(std::string msg)
     else if (command.compare("streamInformation") == 0) {
         //callback(obj.command, obj);
     }
+    else if (command.compare("publish_started") == 0) {
+
+    }
 }
 
 std::unique_ptr<cricket::VideoCapturer> WebRTCAdaptor::OpenVideoCaptureDevice() {
@@ -303,25 +313,31 @@ void WebRTCAdaptor::AddTracks() {
         return;  // Already added tracks.
     }
 
-        rtc::scoped_refptr<webrtc::AudioTrackInterface> audio_track(
-                    peer_connection_factory->CreateAudioTrack(
-                        "audio", peer_connection_factory->CreateAudioSource(
-                            cricket::AudioOptions())));
-        auto result_or_error = peer_connection->AddTrack(audio_track, {"mystream"});
-        if (!result_or_error.ok()) {
-            RTC_LOG(LS_ERROR) << "Failed to add audio track to PeerConnection: "
-                              << result_or_error.error().message();
-        }
+    rtc::scoped_refptr<webrtc::AudioTrackInterface> audio_track(
+        peer_connection_factory->CreateAudioTrack(
+            "audio", peer_connection_factory->CreateAudioSource(
+                             cricket::AudioOptions())));
+    //audio_track->AddSink(new AudioSink());
+    myAdm->InitRecording();
+    myAdm->StartRecording();
+
+    auto result_or_error = peer_connection->AddTrack(audio_track, {Settings::streamId});
+
+    if (!result_or_error.ok()) {
+        printf("\n \n  errr\n\n");
+        RTC_LOG(LS_ERROR) << "Failed to add audio track to PeerConnection: "
+                          << result_or_error.error().message();
+    }
 
 
     if(Settings::mode == Settings::Mode::Publisher && Settings::streamSource.compare("camera") != 0) {
         capturer = new cricket::MyVideoCapturer(true);
         rtc::scoped_refptr<webrtc::VideoTrackInterface>  vt;
-        rtc::scoped_refptr<webrtc::VideoTrackSourceInterface> vts = peer_connection_factory->CreateVideoSource(capturer, nullptr);
+        rtc::scoped_refptr<webrtc::VideoTrackSourceInterface> vts = peer_connection_factory->CreateVideoSource(capturer);
         vt = peer_connection_factory->CreateVideoTrack("video", vts);
 
         video_track_ = vt.get();
-        auto result_or_error = peer_connection->AddTrack(video_track_, {"mystream"});
+        auto result_or_error = peer_connection->AddTrack(video_track_, {Settings::streamId});
 
         if (!result_or_error.ok()) {
             RTC_LOG(LS_ERROR) << "Failed to add video track to PeerConnection: "
@@ -336,7 +352,7 @@ void WebRTCAdaptor::AddTracks() {
             vt = peer_connection_factory->CreateVideoTrack("video", vts);
 
             video_track_ = vt.get();
-            auto result_or_error = peer_connection->AddTrack(video_track_, {"mystream"});
+            auto result_or_error = peer_connection->AddTrack(video_track_, {"myStream"});
 
             if (!result_or_error.ok()) {
                 RTC_LOG(LS_ERROR) << "Failed to add video track to PeerConnection: "
@@ -352,10 +368,10 @@ void WebRTCAdaptor::AddTracks() {
 
 void WebRTCAdaptor::InitializePeerConnection() {
     if(peer_connection_factory == NULL){
-       if(Settings::mode == Settings::Mode::Publisher && Settings::streamSource.compare("camera") != 0) {
+       if(Settings::mode == Settings::Mode::Publisher && Settings::streamSource.compare("camera") == 0) {
            peer_connection_factory = webrtc::CreatePeerConnectionFactory(
                        nullptr /* network_thread */, nullptr /* worker_thread */,
-                       nullptr /* signaling_thread */, webrtc::MyAudioDeviceModuleImpl::Create(webrtc::AudioDeviceModule::AudioLayer::kLinuxAlsaAudio),
+                       nullptr /* signaling_thread */, nullptr /* default_adm */,
                        webrtc::CreateBuiltinAudioEncoderFactory(),
                        webrtc::CreateBuiltinAudioDecoderFactory(),
                        webrtc::CreateBuiltinVideoEncoderFactory(),
@@ -365,13 +381,13 @@ void WebRTCAdaptor::InitializePeerConnection() {
        else {
         peer_connection_factory = webrtc::CreatePeerConnectionFactory(
                     nullptr /* network_thread */, nullptr /* worker_thread */,
-                    nullptr /* signaling_thread */,  nullptr /* default_adm */,
+                    nullptr /* signaling_thread */,  myAdm,
                     webrtc::CreateBuiltinAudioEncoderFactory(),
                     webrtc::CreateBuiltinAudioDecoderFactory(),
                     webrtc::CreateBuiltinVideoEncoderFactory(),
                     webrtc::CreateBuiltinVideoDecoderFactory(), nullptr /* audio_mixer */,
                     nullptr /* audio_processing */);
-        }
+       }
 
         webrtc::PeerConnectionInterface::RTCConfiguration config;
         config.sdp_semantics = webrtc::SdpSemantics::kUnifiedPlan;

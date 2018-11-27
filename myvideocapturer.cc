@@ -82,13 +82,27 @@ bool MyVideoCapturer::GetPreferredFourccs(std::vector<uint32_t>* fourccs) {
 
 void MyVideoCapturer::VideoCaptured(unsigned char* data, int width, int height) {
 
-    rtc::scoped_refptr<webrtc::I420Buffer> buffer(webrtc::I420Buffer::Create(640, 480));
+    rtc::scoped_refptr<webrtc::I420Buffer> buffer(webrtc::I420Buffer::Create(640, 360));
     buffer->InitializeData();
 
+    /*
     libyuv::ARGBToI420((uint8_t*)data, 640 * 4, buffer->MutableDataY(), buffer->StrideY(),
                        buffer->MutableDataU(), buffer->StrideU(),
                        buffer->MutableDataV(), buffer->StrideV(),
                        buffer->width(), buffer->height());
+    */
+
+    int sY = width*height;
+    int sU = width*height/4;
+    int sV = width*height/4;
+
+    char *dY = data;
+    char *dU = dY+sY;
+    char *dV = dU+sV;
+
+    memcpy(buffer->MutableDataY(), dY, sY);
+    memcpy(buffer->MutableDataU(), dU, sU);
+    memcpy(buffer->MutableDataV(), dV, sV);
 
     webrtc::VideoFrame frame =  webrtc::VideoFrame(buffer, webrtc::VideoRotation::kVideoRotation_0, 30);
 

@@ -9,6 +9,9 @@
 #include "websocketadaptor.h"
 #include "videosink.h"
 #include "myvideocapturer.h"
+#include "myaudiodevicemoduleimp.h"
+#include "mydecoder.h"
+
 
 class WebRTCAdaptor;
 
@@ -61,6 +64,9 @@ class WebRTCAdaptor : public WebSocketListener
 public:
     WebRTCAdaptor();
 
+    rtc::scoped_refptr<webrtc::MyAudioDeviceModuleImpl> myAdm = webrtc::MyAudioDeviceModuleImpl::Create(webrtc::AudioDeviceModule::AudioLayer::kLinuxAlsaAudio);
+
+    MyDecoder *fileReader;
     void gotDescription(webrtc::SessionDescriptionInterface* desc);
     void onIceCandidate(const webrtc::IceCandidateInterface* candidate);
     void init();

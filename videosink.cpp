@@ -14,16 +14,17 @@
 
 VideoSink::VideoSink() {
     frameCount = 0;
-    image_.reset(new uint8_t[640 * 480 * 4]);
+    image_.reset(new uint8_t[640 * 360 * 4]);
 
     if(Settings::useUI) {
         QWidget *win = new QWidget();
-        win->setWindowTitle(QString(Settings::label.c_str()));
+        QString title = QString(Settings::label.c_str()) + QString(" - ") + (Settings::mode == Settings::Mode::Publisher ? QString("Publisher") : QString("Player"));
+        win->setWindowTitle(title);
 
         label = new QLabel(win);
-        label->setFixedSize(640, 480);
+        label->setGeometry(QRect(5,5,640,360));
 
-        win->setMaximumSize(QSize(650,500));
+        win->setFixedSize(QSize(650,370));
 
         win->show();
     }
@@ -34,8 +35,8 @@ void VideoSink::setTrack(webrtc::VideoTrackInterface* track_to_render) {
 }
 
 void VideoSink::saveFrame(QImage &img) {
-    int64 now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-    QString fileName = QDir::homePath() + QString("/test/")
+    int64_t now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    QString fileName = QDir::currentPath()+QString("/")
             + QString(Settings::label.c_str())
             + QString("_frame") + QString::number(frameCount)
             + QString("@") + QString::number(now) + QString(".png");
@@ -48,23 +49,27 @@ void VideoSink::OnFrame(const webrtc::VideoFrame& video_frame) {
       buffer = webrtc::I420Buffer::Rotate(*buffer, video_frame.rotation());
     }
 
-    image_.reset(new uint8_t[640 * 480 * 4]);
+    int h = video_frame.height();
+    int w = video_frame.width();
+    int s =video_frame.size();
+
+    image_.reset(new uint8_t[w * h * 4]);
 
     libyuv::I420ToARGB(buffer->DataY(), buffer->StrideY(),
                        buffer->DataU(), buffer->StrideU(),
                        buffer->DataV(), buffer->StrideV(),
-                       image_.get(), 640 * 4,
+                       image_.get(), w * 4,
                        buffer->width(), buffer->height());
 
 
     if((Settings::period > 0) && ((frameCount % Settings::period) == 0)) {
-        QImage img(image_.get(), 640, 480, QImage::Format_ARGB32 );
+        QImage img(image_.get(), w, h, QImage::Format_ARGB32 );
         saveFrame(img);
     }
 
     if(Settings::useUI) {
-        QImage img(image_.get(), 640, 480, QImage::Format_ARGB32 );
-        label->setPixmap(QPixmap::fromImage(img).scaledToWidth(480, Qt::SmoothTransformation));
+        QImage img(image_.get(), w, h, QImage::Format_ARGB32 );
+        label->setPixmap(QPixmap::fromImage(img).scaledToWidth(640, Qt::SmoothTransformation));
     }
 
     frameCount++;

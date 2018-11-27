@@ -14,6 +14,7 @@ public:
 
     Settings();
     static bool Parse(int argc, char* argv[]);
+    static bool ParseLocal(char* flag, char* value);
     static void Print();
     static void PrintUsage();
 
@@ -24,6 +25,8 @@ public:
     static Mode mode;
     static bool useUI;
     static int period;
+    static bool verbose;
+    static bool isSequre;
 };
 
 #endif // SETTINGS_H

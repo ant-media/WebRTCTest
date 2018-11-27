@@ -123,6 +123,7 @@ class MyAudioDeviceModuleImpl : public AudioDeviceModule {
   int32_t EnableBuiltInAGC(bool enable) override;
   bool BuiltInNSIsAvailable() const override;
   int32_t EnableBuiltInNS(bool enable) override;
+  bool WriteAudioFrame(int8_t* data, size_t sample_count);
 
 
   AudioDeviceBuffer* GetAudioDeviceBuffer() { return &audio_device_buffer_; }
