@@ -1,11 +1,12 @@
 QT += core gui websockets multimedia multimediawidgets
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+QT += widgets
+QT -= opengl
+
 
 TARGET = WebRTCTest
 CONFIG += console
 CONFIG -= app_bundle
 CONFIG += no_keywords
-
 
 TEMPLATE = app
 
@@ -21,8 +22,7 @@ SOURCES += main.cpp \
 
 QMAKE_CXXFLAGS += -std=gnu++11 -fno-rtti -fpermissive
 
-
-WEBRTC = /home/burak/antmedia/webrtc-checkout/src
+WEBRTC = /media/burak/LinuxData/webrtc-checkout/src
 INCLUDEPATH += $${WEBRTC}
 INCLUDEPATH += $${WEBRTC}/third_party/abseil-cpp
 INCLUDEPATH += $${WEBRTC}/third_party/libyuv/include
